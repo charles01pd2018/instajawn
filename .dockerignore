@@ -1,0 +1,6 @@
+# Ignore .git folder
+.creatives
+
+
+# Ignore Typescript files in any folder or subfolder
+# **/*.ts

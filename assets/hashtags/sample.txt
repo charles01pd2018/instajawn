@@ -1,0 +1,6 @@
+! hashtags should be words with no special characters or spaces !
+! Seperate hashtags with commas, do not add spaces after the commas !
+! Make sure you delete instructions after and add your own hashtags (file should only be one line long) !
+! Below is a sample template of what to put here ! 
+
+hashtag1,hashtag2,hashtag3,...
