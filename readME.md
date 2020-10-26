@@ -25,6 +25,10 @@ Additionally, InstaJawn records the number of likes performed in one session. Yo
 
 You're good to go! Run main.py to see InstaJawn do its thing.
 
+## Dependencies
+pip install selenium
+pip install requests
+
 
 ## Customization
 This is meant to serve as a base. It may or may not be further developed on, but there is room for a lot of customization if you choose to build a project on top of this program. Some ideas:
@@ -35,6 +39,7 @@ This is meant to serve as a base. It may or may not be further developed on, but
 - Deploy InstaJawn to a cloud or local server. You may have noticed a prelimary Dockerfile - play around with it!
 
 This list is by no means exhaustive, so get creative and implement your own features if you are up for it!
+
 
 ## Notes
 This has not been heavily tested yet - consider this beta code. I take no responsibility if your Instagram accounts get banned as a result of using this code - it is meant soley for learning purposes.
