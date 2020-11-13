@@ -1,19 +1,25 @@
 # Instagram Bot Base Class
 
-from selenium import webdriver
-from time import sleep
 from random import randint, shuffle
+from selenium import webdriver
+from pathlib import Path
+
+# times
 from datetime import datetime
+from pytz import timezone
+from time import sleep
+
+
 
 
 class InstaJawn:
 
     # Class Initialization
 
-    def _initialize_paths(self) -> None:
+    def _initialize_xml(self) -> None:
         '''Initializes Instagram HTML element paths'''
 
-        self._LOGIN_BUTTON = '/html/body/div[1]/section/main/div/article/div/div[1]/div/form/div/div[3]/button/div'
+        self._LOGIN_BUTTON = '/html/body/div[1]/section/main/div/div/div[1]/div/form/div/div[3]/button/div'
         self._SAVE_INFO_BUTTON = '/html/body/div[1]/section/main/div/div/div/div/button' # 'Not now' button for Save Info pop-up upon logging in
         self._NOTIF_BUTTON = '/html/body/div[4]/div/div/div/div[3]/button[2]' # 'Not now' button for Notications pop-up upon logging in
 
@@ -25,17 +31,29 @@ class InstaJawn:
         self._TAG_URL = 'https://www.instagram.com/explore/tags/'
         self._LOGIN_URL = 'https://www.instagram.com/accounts/login/' 
 
-        self.CHROMEDRIVER_PATH = '/assets/dependencies/chromedriver'
+    
+    def _set_browser_options(self) -> None:
+        '''Sets selenium browser options'''
+
+        self.chrome_options = webdriver.ChromeOptions()
+        
+        self.chrome_options.add_argument('--headless')
 
 
-    def __init__(self, user: str, password: str, root_path: str) -> None:
+    def __init__(self, user: str, password: str, root_path: Path, headless: bool) -> None:
         '''Initalizes class attributes'''
 
         '''
             user: username credential
             password: password credential
             root_path: root path of the instjawn program
+            headless: whether to show the browser or not
         '''
+
+        # logs
+        print('*Beep Boop*')
+        print('[{}] Initiating InstaJawn'.format( self.get_time() ))
+        print('-' * 50)
 
         #Login Credentials
         self.user = user 
@@ -44,11 +62,19 @@ class InstaJawn:
         self.num_posts_liked = 0 # Number of posts liked in a session
 
         #Initialize class constants
-        self._initialize_paths()
+        self._initialize_xml()
         self._initialize_constants()
 
         self.root_path = root_path
-        self.driver = webdriver.Chrome(self.root_path + '/assets/dependencies/chromedriver') # Automated Google Chrome browser
+
+        if headless == True:
+            self._set_browser_options()
+
+            self.driver = webdriver.Chrome( Path( self.root_path, 'assets/dependencies/chromedriver' ), options=self.chrome_options ) # Automated Google Chrome browser
+
+        else: 
+            self.driver = webdriver.Chrome( Path( self.root_path, 'assets/dependencies/chromedriver' ) ) # Automated Google Chrome browser
+
 
         self.session_num = 1 # Session number Instajawn is on
 
@@ -81,6 +107,8 @@ class InstaJawn:
             load_time: Amount of time to wait for the page to load. You may have to raise this number if you have a slow connection
         '''
 
+        print('[{}] Logging in...'.format( self.get_time() )) # logs
+
         self.driver.get(self._LOGIN_URL) # Loads the login page of Instagam
 
         sleep(load_time) # Waits for the page to load
@@ -96,6 +124,10 @@ class InstaJawn:
         self.click_notifications() # If a notifiction button pops up, program dismisses it
 
         sleep(load_time) # Waits for the page to load
+
+        print('[{}] Successfully Logged In!'.format( self.get_time() )) # logs
+        print('-' * 50)
+
 
     '-------------------------------------------------------------------------------------------------------------------------'
     # Navigating to certain pages on Instagram
@@ -181,6 +213,22 @@ class InstaJawn:
 
     # Storing data
 
+    def get_time(self, area: str='EST'):
+        '''Returns the the time in a pretty string format ( MM/DD/YYYY-00:00:00 )'''
+
+        '''
+            timezone: timezone of string will be retruned as
+        '''
+
+        current_time = datetime.now( tz=timezone(area) ) # datetime class
+
+        date = current_time.strftime("%m/%d/%Y") # current date as a string ( MM/DD/YYYY )
+        time = current_time.strftime("%H:%M:%S") # current time as a string ( 00:00:00 )
+
+        return date + '-' + time 
+
+        
+
     def store_num_likes(self, session_type: str):
         '''Creates and writes a new file that stores the number of likes performed in the session'''
 
@@ -188,15 +236,18 @@ class InstaJawn:
             session_type: type of session being stored
         '''
 
-        save_path = 'data/like_tracker/'
-        current_time = str(datetime.datetime.now())
-        
+        save_path = Path( self.root_path, 'data/like_tracker/' ) # save path to record number of likes performed in the session
+
+        current_time = self.get_time()
+
         file_name = current_time + '_' + session_type + '.txt'
 
-        like_file = open(save_path + file_name, 'x') # Creates a .txt file in the like_tracker folder with the current time
-        like_file.write('Session Number {}: '.format(self.session_num) + str(self.num_posts_liked)) # Wrties the number of likes performed in the session
+        with open( Path( save_path, file_name ) , 'x') as like_file: 
+            like_file.write('Session Number {}: '.format( self.session_num ) + str(self.num_posts_liked) ) # Wrties the number of likes performed in the session
 
-        print('Session {} completed!'.format(self.session_num)) 
         self.session_num += 1 # Proceeds to the next session
+        
+        print('{} Session {} completed with {} likes!\n'.format(session_type, self.session_num, self.num_posts_liked)) # logs
+        print('-' * 50)
 
-        like_file.close()
+        self.num_posts_liked = 0 # resets the number of posts liked for the next sequence

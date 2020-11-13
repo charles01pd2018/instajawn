@@ -1,17 +1,24 @@
 # Runner for combining the instajawn sequences
 
-from instajawn import InstaJawn
-from helper.prompt import prompt_user, prompt_pass
-from helper.account import Account
-from hashtag import go_through_tags
-from feed import like_feed
 
 from time import sleep
+from pathlib import Path
+
+# helper
+from helper.prompt import prompt_user, prompt_pass
+from helper.account import Account
+
+
+# sequences
+from sequence.hashtag import go_through_tags
+from sequence.feed import like_feed
+
+from instajawn import InstaJawn
 
 
 class Runner:
 
-    def __init__(self, account: Account, root_path: str, hashtag_file: str, continuous: bool=True, sleep_time: int=4):
+    def __init__(self, account: Account, root_path: Path, hashtag_file: str, continuous: bool=True, sleep_time: int=4):
         '''Initializes class varaibles'''
 
         '''
@@ -23,10 +30,10 @@ class Runner:
         '''
 
         if account.user == '' or account.password == '': # Prompt the user
-            self.instance = InstaJawn(prompt_user(), prompt_pass(), root_path=root_path) # Instagram session
+            self.instance = InstaJawn(prompt_user(), prompt_pass(), root_path=root_path, headless=True) # Instagram session
 
         else: # Start the session
-            self.instance = InstaJawn(account.user, account.password,root_path=root_path) 
+            self.instance = InstaJawn(account.user, account.password, root_path=root_path, headless=True) 
 
         self.hashtag_file = hashtag_file 
 

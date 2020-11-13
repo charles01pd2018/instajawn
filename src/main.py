@@ -1,11 +1,17 @@
 # Runs Instajawn
 
-from x import Runner
+from pathlib import Path
+import os
+
+# helper
 from helper.account import Account
+
+# executable sequence for instajawn
+from x import Runner
 
 
 '''File Paths'''
-ROOT_PATH = ''
+ROOT_PATH = Path( os.getcwd() ) # current working directory in Path form of your OS system
 
 '''Account Information'''
 USERNAME = ''
